@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    base: '/mld-cs-tutor-ai-toolkit/',
     server: {
       proxy: {
         '/api/openai': {
