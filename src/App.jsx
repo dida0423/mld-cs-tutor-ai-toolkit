@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { TutorChatbot } from './components/TutorChatbot.jsx'
 import { EmbeddingsExplorer } from './components/EmbeddingsExplorer.jsx'
+import { InteractiveActivityBlock } from './components/InteractiveActivityBlock.jsx'
 import { QuizBlock } from './components/QuizBlock.jsx'
 import { VisualizationProvider } from './context/VisualizationProvider.jsx'
 import { usePublishVisualization } from './context/useVisualization.js'
@@ -104,6 +105,7 @@ function MapReduceModule() {
   const [nodeCount, setNodeCount] = useState(3)
   const [phaseIndex, setPhaseIndex] = useState(0)
   const [autoPlay, setAutoPlay] = useState(false)
+  const [activityRegenerateSignal, setActivityRegenerateSignal] = useState(0)
 
   const words = useMemo(
     () => Array.from({ length: datasetSize }, (_, i) => WORD_POOL[i % WORD_POOL.length]),
@@ -288,7 +290,13 @@ function MapReduceModule() {
         <p>MapReduce powers large-scale batch processing in Hadoop, web log analytics, and ETL pipelines.</p>
       </section>
 
-      <QuizBlock title="Check understanding" items={QUIZZES.mapreduce} quizTopicName="MapReduce" />
+      <QuizBlock
+        title="Check understanding"
+        items={QUIZZES.mapreduce}
+        quizTopicName="MapReduce"
+        onBatchRegenerated={() => setActivityRegenerateSignal((v) => v + 1)}
+      />
+      <InteractiveActivityBlock topic="MapReduce" regenerateSignal={activityRegenerateSignal} />
     </section>
   )
 }
@@ -306,6 +314,7 @@ function GradientDescentModule() {
   const [running, setRunning] = useState(false)
   const [point, setPoint] = useState({ x: 3.2, y: -2.5 })
   const [history, setHistory] = useState([{ x: 3.2, y: -2.5 }])
+  const [activityRegenerateSignal, setActivityRegenerateSignal] = useState(0)
 
   useEffect(() => {
     if (!running) return undefined
@@ -433,7 +442,13 @@ function GradientDescentModule() {
         <p>Gradient descent is the core optimizer for training neural networks and fine-tuning LLMs.</p>
       </section>
 
-      <QuizBlock title="Check understanding" items={QUIZZES.gradient} quizTopicName="Gradient descent" />
+      <QuizBlock
+        title="Check understanding"
+        items={QUIZZES.gradient}
+        quizTopicName="Gradient Descent"
+        onBatchRegenerated={() => setActivityRegenerateSignal((v) => v + 1)}
+      />
+      <InteractiveActivityBlock topic="Gradient Descent" regenerateSignal={activityRegenerateSignal} />
     </section>
   )
 }

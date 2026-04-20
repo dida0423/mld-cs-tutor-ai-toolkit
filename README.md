@@ -57,6 +57,8 @@ The app calls OpenAI through a **Vite dev-server proxy** so your key stays on th
 
 - **Embeddings tab:** fetches real vectors via `POST /v1/embeddings` (proxied). **Nearest neighbors and “Compare” use cosine similarity on full vectors.** The scatter plot is a **PCA projection** (dual Gram eigen trick for small \(n\)) plus min–max scaling into the SVG—use it for intuition, not exact geometry.
 - **AI tutor:** each reply sends a **system prompt** that includes the active tab name plus a JSON **live visualization snapshot** (parameters, step, optimizer state, embedding status, errors).
+- **RAG:** curated notes live in `src/rag/knowledgeChunks.js` (distilled from public docs, with inline **Sources:** links), including: [Apache MapReduce Tutorial](https://hadoop.apache.org/docs/r1.2.1/mapred_tutorial.html), [GeeksforGeeks MapReduce](https://www.geeksforgeeks.org/big-data/map-reduce-in-hadoop/) / [GFG embeddings overview](https://www.geeksforgeeks.org/machine-learning/what-are-embeddings-in-machine-learning/), [OpenAI embeddings guide](https://developers.openai.com/api/docs/guides/embeddings), and [ML Cheatsheet — Gradient Descent](https://ml-cheatsheet.readthedocs.io/en/latest/gradient_descent.html). Each question is embedded and matched by **cosine similarity** (`src/rag/ragService.js`); top chunks are added to the system prompt. Responses can show **“RAG: …”** chunk titles. Chunk embeddings are warmed on tutor mount.
+- **AI interactive activities:** each topic auto-shows a generated 3-5 step activity below quizzes (`src/components/InteractiveActivityBlock.jsx`). Activities are generated once per topic and cached in localStorage (`mld_activity_cache_v1` + `mld_activity_progress_v1`), reused on tab return, and regenerated only via **Next Activity** or when a new quiz batch is generated.
 - **Quizzes:** wrong answers can trigger **“AI: explain my mistake”** (lightweight follow-up).
 
 ## Build
@@ -72,10 +74,14 @@ Static output is written to `dist/`.
 - `src/App.jsx` — MapReduce + gradient modules, layout, quizzes wiring
 - `src/components/EmbeddingsExplorer.jsx` — embedding fetch, PCA plot, cosine neighbors, compare
 - `src/components/TutorChatbot.jsx` — context-aware chat UI + quick prompts
-- `src/components/QuizBlock.jsx` — quizzes + optional AI explanations
+- `src/components/QuizBlock.jsx` — adaptive quizzes (3 per batch, **Generate New Questions** via OpenAI) + optional AI explanations
+- `src/components/InteractiveActivityBlock.jsx` — cached step-by-step activity UI (drag/click/select)
+- `src/services/quizGeneration.js` — JSON quiz batch generation from prior performance
+- `src/services/activityGeneration.js` — JSON activity generation + schema normalization/fallback
 - `src/services/openaiClient.js` — fetch helpers for `/api/openai/...`
 - `src/utils/pca2d.js`, `src/utils/vectorMath.js` — PCA projection + cosine
 - `src/context/*` — visualization snapshot context for the tutor
+- `src/rag/knowledgeChunks.js`, `src/rag/ragService.js` — tutor RAG knowledge + retrieval
 - `vite.config.js` — OpenAI proxy configuration
 
 ## Scripts

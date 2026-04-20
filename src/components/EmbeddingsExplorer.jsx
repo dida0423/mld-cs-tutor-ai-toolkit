@@ -4,6 +4,7 @@ import { cosineSimilarity } from '../utils/vectorMath.js'
 import { fit2DToSvg, pca2ScoresFromRows } from '../utils/pca2d.js'
 import { usePublishVisualization } from '../context/useVisualization.js'
 import { QuizBlock } from './QuizBlock.jsx'
+import { InteractiveActivityBlock } from './InteractiveActivityBlock.jsx'
 
 const DEFAULT_CORPUS = [
   'king',
@@ -35,6 +36,7 @@ export function EmbeddingsExplorer({ quizItems }) {
   const [actionBusy, setActionBusy] = useState(false)
   const [actionError, setActionError] = useState(null)
   const [addText, setAddText] = useState('')
+  const [activityRegenerateSignal, setActivityRegenerateSignal] = useState(0)
 
   const modelName = getEmbeddingModelName()
 
@@ -301,7 +303,13 @@ export function EmbeddingsExplorer({ quizItems }) {
         <p>Embeddings drive semantic search, recommendation ranking, and LLM retrieval pipelines.</p>
       </section>
 
-      <QuizBlock title="Check understanding" items={quizItems} quizTopicName="Embeddings" />
+      <QuizBlock
+        title="Check understanding"
+        items={quizItems}
+        quizTopicName="Embeddings"
+        onBatchRegenerated={() => setActivityRegenerateSignal((v) => v + 1)}
+      />
+      <InteractiveActivityBlock topic="Embeddings" regenerateSignal={activityRegenerateSignal} />
     </section>
   )
 }

@@ -3,7 +3,7 @@
  * so the API key stays on the server (see vite.config.js + .env).
  */
 
-const CHAT_MODEL = import.meta.env.VITE_OPENAI_CHAT_MODEL ?? 'gpt-4o-mini'
+const CHAT_MODEL = import.meta.env.VITE_OPENAI_CHAT_MODEL ?? 'gpt-5.4-nano'
 const EMBEDDING_MODEL = import.meta.env.VITE_OPENAI_EMBEDDING_MODEL ?? 'text-embedding-3-small'
 
 const BASE = '/api/openai'
@@ -30,7 +30,7 @@ export async function chatCompletion(messages, options = {}) {
       model: options.model ?? CHAT_MODEL,
       messages,
       temperature: options.temperature ?? 0.45,
-      max_tokens: options.maxTokens ?? 700,
+      max_completion_tokens: options.maxTokens ?? 700,
     }),
   })
   if (!res.ok) throw await parseError(res)
