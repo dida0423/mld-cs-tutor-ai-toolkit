@@ -2,7 +2,11 @@
 
 export default async function handler(req, res) {
   const { path = [] } = req.query
-  const tail = Array.isArray(path) ? path.join('/') : String(path || '')
+  const tailFromQuery = Array.isArray(path) ? path.join('/') : String(path || '')
+  const rawUrl = String(req.url || '')
+  const pathOnly = rawUrl.split('?')[0]
+  const fromUrl = pathOnly.startsWith('/api/openai/') ? pathOnly.slice('/api/openai/'.length) : ''
+  const tail = (tailFromQuery || fromUrl).replace(/^\/+/, '')
   const upstream = `https://api.openai.com/v1/${tail}`
   const apiKey =
     process.env.OPENAI_API_KEY ??
@@ -12,6 +16,9 @@ export default async function handler(req, res) {
   const maskedKey = apiKey ? `${apiKey.slice(0, 7)}...(${apiKey.length})` : '(missing)'
   console.log('[openai-proxy] request', {
     method: req.method || 'GET',
+    url: rawUrl,
+    tailFromQuery,
+    tailFromUrl: fromUrl,
     tail,
     vercelEnv: process.env.VERCEL_ENV ?? null,
     nodeEnv: process.env.NODE_ENV ?? null,
@@ -40,6 +47,14 @@ export default async function handler(req, res) {
   try {
     const method = req.method || 'GET'
     const isBodyAllowed = !['GET', 'HEAD'].includes(method)
+    if (!tail) {
+      return res.status(400).json({
+        error: {
+          message: 'Missing OpenAI endpoint path. Expected /api/openai/chat/completions or /api/openai/embeddings.',
+        },
+        diagnostics: { url: rawUrl, tailFromQuery, tailFromUrl: fromUrl },
+      })
+    }
 
     const upstreamRes = await fetch(upstream, {
       method,
